@@ -15,7 +15,8 @@
 const int Board::initWeightArray[8][3] = {
 	{ 4, 3, 4 }, { 6, 6, 6 }, { 4, 3, 4 },
 	      { 3, 5, 3 }, { 3, 5, 3 }, 
-	{ 4, 3, 4 }, { 6, 6, 6 }, { 4, 3, 4 } };
+	{ 4, 3, 4 }, { 6, 6, 6 }, { 4, 3, 4 } 
+};
 
 /*basic board constructor*/
 Board::Board() {
@@ -33,10 +34,30 @@ void Board::clearBoard() {
 			weightArray[i][j] = initWeightArray[i][j];
 			boardArray[i][j] = '\0';	//empty space
 		}
+		towerHeight[i] = 0;
+	}
+}
+
+/*add a players move to the board*/
+void Board::makeMove(bool xTurn, int tower) {
+	if (xTurn) {
+		
 	}
 }
 
 /*show the current state of the board in ASCII*/
-void showBoard() {
-	std::cout << "\n";
+void Board::showBoard() {
+
+	std::cout << "\n   A     B     C";
+	std::cout << "\n  [" << boardArray[0][2] << "]   [" << boardArray[1][2] << "]   [" << boardArray[2][2] << "]";
+	std::cout << "\n  [" << boardArray[0][1] << "]   [" << boardArray[1][1] << "]   [" << boardArray[2][1] << "]";
+	std::cout << "\n  [" << boardArray[0][0] << "]   [" << boardArray[1][0] << "]   [" << boardArray[2][0] << "]";
+	std::cout << "\n      D     E";
+	std::cout << "\n     [" << boardArray[3][2] << "]   [" << boardArray[4][2] << "]";
+	std::cout << "\n     [" << boardArray[3][1] << "]   [" << boardArray[4][1] << "]";
+	std::cout << "\n     [" << boardArray[3][0] << "]   [" << boardArray[4][0] << "]";
+	std::cout << "\n   F     G     H";
+	std::cout << "\n  [" << boardArray[5][2] << "]   [" << boardArray[6][2] << "]   [" << boardArray[7][2] << "]";
+	std::cout << "\n  [" << boardArray[5][1] << "]   [" << boardArray[6][1] << "]   [" << boardArray[7][1] << "]";
+	std::cout << "\n  [" << boardArray[5][0] << "]   [" << boardArray[6][0] << "]   [" << boardArray[7][0] << "]\n";
 }

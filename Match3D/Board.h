@@ -16,9 +16,11 @@ public:
 	~Board();
 	void clearBoard();	//reset all board parameters to default
 	void showBoard();	//show the current state of the board in ASCII
+	void makeMove(bool, int);	//add a players move to the board
 private:
-	static const int initWeightArray[8][3];
-	int	weightArray[8][3];
-	char boardArray[8][3];
+	static const int initWeightArray[8][3];	//initial board weights
+	int	weightArray[8][3];	//updated weights on every space for greedy heuristic
+	char boardArray[8][3];	//saves which pieces are on the current board
+	int towerHeight[8];		//stores how many pieces are in each tower already
 };
 
