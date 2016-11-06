@@ -31,22 +31,62 @@ Board::~Board() {
 void Board::clearBoard() {
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 4; j++) {
-			weightArray[i][j] = initWeightArray[i][j];
-			boardArray[i][j] = '\0';	//empty space
+			weightArray[i][j] = initWeightArray[i][j];	//reset board weights
+			boardArray[i][j] = '\0';	//set board spaces to empty space
 		}
-		towerHeight[i] = 0;
+		towerHeight[i] = 0;	//"tear down" the towers
+	}
+}
+
+/*returns true if the selected tower is already full*/
+bool Board::towerFull(int tower) {
+	if (towerHeight[tower] >= 3) { //check for full tower
+		std::cout << "This tower is already full!\n";
+		return true;
+	}
+	return false;
+}
+
+/*calculate the score of a given player on the current board*/
+int Board::calcScore(char player) {
+	//MATHS
+	return 0;
+}
+
+/*add a piece ignoring gravity(for examples only)*/
+void Board::hardMove(bool xTurn, int tower, int height) {
+	if (tower < 8 && height < 3) {	//valid move
+		if (xTurn) { //add an X to selected tower
+			boardArray[tower][height] = 'X';	
+		} else { //add an O to selected tower
+			boardArray[tower][height] = 'O';
+		}
+	} else {
+		std::cout << "That's not a valid move you dummy! How do you hard code a move wrong!?";
 	}
 }
 
 /*add a players move to the board*/
 void Board::makeMove(bool xTurn, int tower) {
-	if (xTurn) {
-		
+	if (towerHeight[tower] >= 3) { //check for full tower
+		std::cout << "This tower is already full!\n";
+	} else {	//tower is still a valid selection
+		if (xTurn) { //add an X to selected tower
+			boardArray[tower][towerHeight[tower]] = 'X';
+		}
+		else {	 //add an O to selected tower
+			boardArray[tower][towerHeight[tower]] = 'O';
+		}
+		towerHeight[tower]++;	//increment the tower height
 	}
 }
 
 /*show the current state of the board in ASCII*/
-void Board::showBoard() {
+void Board::printBoard(char piece) {
+	char antiPiece = 'X';
+	if (piece == 'X') {
+		antiPiece = 'O';
+	}
 
 	std::cout << "\n   A     B     C";
 	std::cout << "\n  [" << boardArray[0][2] << "]   [" << boardArray[1][2] << "]   [" << boardArray[2][2] << "]";
@@ -54,10 +94,12 @@ void Board::showBoard() {
 	std::cout << "\n  [" << boardArray[0][0] << "]   [" << boardArray[1][0] << "]   [" << boardArray[2][0] << "]";
 	std::cout << "\n      D     E";
 	std::cout << "\n     [" << boardArray[3][2] << "]   [" << boardArray[4][2] << "]";
+	std::cout << "       Player (" << piece << ") Score: " << calcScore(piece);
 	std::cout << "\n     [" << boardArray[3][1] << "]   [" << boardArray[4][1] << "]";
 	std::cout << "\n     [" << boardArray[3][0] << "]   [" << boardArray[4][0] << "]";
+	std::cout << "       Computer (" << antiPiece << ") Score: " << calcScore(antiPiece);
 	std::cout << "\n   F     G     H";
 	std::cout << "\n  [" << boardArray[5][2] << "]   [" << boardArray[6][2] << "]   [" << boardArray[7][2] << "]";
 	std::cout << "\n  [" << boardArray[5][1] << "]   [" << boardArray[6][1] << "]   [" << boardArray[7][1] << "]";
-	std::cout << "\n  [" << boardArray[5][0] << "]   [" << boardArray[6][0] << "]   [" << boardArray[7][0] << "]\n";
+	std::cout << "\n  [" << boardArray[5][0] << "]   [" << boardArray[6][0] << "]   [" << boardArray[7][0] << "]\n\n";
 }

@@ -14,9 +14,12 @@ class Board {
 public:
 	Board();	//Basic board constructor
 	~Board();
-	void clearBoard();	//reset all board parameters to default
-	void showBoard();	//show the current state of the board in ASCII
+	void clearBoard();		//reset all board parameters to default
+	void printBoard(char);	//show the current state of the board in ASCII
+	int calcScore(char);	//calculate the score of a given player on the current board
+	bool towerFull(int); //returns true if the selected tower is already full
 	void makeMove(bool, int);	//add a players move to the board
+	void hardMove(bool, int, int);	//add a piece ignoring gravity (for examples only)
 private:
 	static const int initWeightArray[8][3];	//initial board weights
 	int	weightArray[8][3];	//updated weights on every space for greedy heuristic
