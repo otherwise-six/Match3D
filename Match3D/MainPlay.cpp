@@ -7,7 +7,9 @@
 *	Updated Nov.5.2016	*/
 
 #include <iostream>
+#include <windows.h>
 #include "Board.h"
+#undef max
 
 /*Ask the player a yes or no question*/
 bool yes() {
@@ -150,8 +152,100 @@ char mainMenu(Board board) {
 	return piece;	//return the selected player piece and start playing!
 }
 
+/*evaluate a specified row within the 3D space of the board*/
+void evalRow(Board &b, int row, int x, int y, int z, char testPiece, int value) {
+	if (b.getPiece(x, row) == '\0' && b.getPiece(y, row) == testPiece && b.getPiece(z, row) == testPiece) {
+		b.setWeight(x, row, value);
+	}
+	else if (b.getPiece(y, row) == '\0' && b.getPiece(x, row) == testPiece && b.getPiece(z, row) == testPiece) {
+		b.setWeight(y, row, value);
+	}
+	else if (b.getPiece(z, row) == '\0' && b.getPiece(x, row) == testPiece && b.getPiece(y, row) == testPiece) {
+		b.setWeight(z, row, value);
+	}
+}
+
+/*evaluate a specified row within the 3D space of the board*/
+void evalDiag(Board &b, int x1, int x2, int y1, int y2, char testPiece, int value) {
+	if (b.getPiece(x1, x2) == '\0' && b.getPiece(y1, y2) == testPiece) {
+		b.setWeight(x1, x2, value);
+	}
+	if (b.getPiece(y1, y2) == '\0' && b.getPiece(x1, x2) == testPiece) {
+		b.setWeight(y1, y2, value);
+	}
+}
+
+/*The computer player will determine and make the move it thinks is best*/
+void computerMove(Board &b, char piece, char enemy) {
+	int weight = 20;	//high priority weight for blocking
+	char checkPiece = enemy;	//acts as a switch for blocking and seeking points
+
+	/*first check for blockable, then check for points*/
+	for (int n = 0; n < 2; n++) {
+		if (n = 1) {
+			checkPiece = piece;
+			weight = 10;	//second highest priority for matching
+		}
+		/*go through towers*/
+		for (int i = 0; i < 8; i++) {
+			/*check for nearly complete columns*/
+			if (b.getPiece(i, 0) == checkPiece && b.getPiece(i, 1) == checkPiece) {
+				b.setWeight(i, 2, weight);
+			}
+		}
+
+		/*go through and check for nearly complete rows*/
+		for (int j = 0; j < 3; j++) {
+			evalRow(b, j, 0, 1, 2, checkPiece, weight); //evaluate "back" rows
+			evalRow(b, j, 5, 6, 7, checkPiece, weight); //evaluate "front" rows
+			evalRow(b, j, 0, 3, 6, checkPiece, weight); //evaluate "left \" rows
+			evalRow(b, j, 1, 3, 5, checkPiece, weight); //evaluate "left /" rows
+			evalRow(b, j, 1, 4, 7, checkPiece, weight); //evaluate "right \" rows
+			evalRow(b, j, 2, 4, 6, checkPiece, weight); //evaluate "right /" rows	
+		}
+
+		/*check for nearly complete diagonals through D*/
+		if (b.getPiece(3, 1) == checkPiece) {
+			evalDiag(b, 0, 0, 6, 2, checkPiece, weight);
+			evalDiag(b, 6, 0, 0, 2, checkPiece, weight);
+			evalDiag(b, 5, 0, 1, 2, checkPiece, weight);
+			evalDiag(b, 1, 0, 5, 2, checkPiece, weight);
+		}
+		/*check for nearly complete diagonals through E*/
+		if (b.getPiece(4, 1) == checkPiece) {
+			evalDiag(b, 1, 0, 7, 2, checkPiece, weight);
+			evalDiag(b, 7, 0, 1, 2, checkPiece, weight);
+			evalDiag(b, 2, 0, 6, 2, checkPiece, weight);
+			evalDiag(b, 6, 0, 2, 2, checkPiece, weight);
+		}
+
+		/*check for nearly completediagonals through B*/
+		if (b.getPiece(1, 1) == checkPiece) {
+			evalDiag(b, 0, 0, 2, 2, checkPiece, weight);
+			evalDiag(b, 2, 0, 0, 2, checkPiece, weight);
+		}
+
+		/*check for nearly complete diagonals through G*/
+		if (b.getPiece(6, 1) == checkPiece) {
+			evalDiag(b, 5, 0, 7, 2, checkPiece, weight);
+			evalDiag(b, 7, 0, 5, 2, checkPiece, weight);
+		}
+	}
+	/*
+			int j = b.getTowerHeight(i);
+			if (j = 1) { //we could fill this tower
+				//if (b.)
+			}
+			temp = b.getWeight(i, j);
+			//if (j < 2) { //account for how valuable the space above this move would be
+			//	temp = temp - (b.weightArray[i][j + 1] / 2);
+			//}
+        }
+	}*/
+}
+
 /*Tally the final scores and declare a winner*/
-void declareWinner(Board b, char player, char com) {
+void declareWinner(Board &b, char player, char com) {
 	int playerScore = b.calcScore(player);
 	int comScore = b.calcScore(com);
 	std::cout << "\nTallying Final Scores...\n";
@@ -177,6 +271,7 @@ int main() {
 	if (playerPiece == 'O') {
 		comPiece = 'X';
         //COMPUTER MOVES
+		computerMove(board, comPiece, playerPiece);
 		xTurn = !xTurn;
 	} else {
 		comPiece = 'O';

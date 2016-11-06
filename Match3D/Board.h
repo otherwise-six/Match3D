@@ -16,15 +16,19 @@ public:
 	~Board();
 	void clearBoard();		//reset all board parameters to default
 	void printBoard(char);	//show the current state of the board in ASCII
-	int calcScore(char);	//calculate the score of a given player on the current board
-	bool towerFull(int);    //returns true if the selected tower is already full
-	bool boardFull();       //returns true if the board is full (used to determine game over)
 	void makeMove(bool, int);	//add a players move to the board
 	void hardMove(bool, int, int);	//add a piece ignoring gravity (for examples only)
+	void setWeight(int, int, int);	//sets the weight of the selected board space to the given value
+	bool towerFull(int);    //returns true if the selected tower is already full
+	bool boardFull();       //returns true if the board is full (used to determine game over)
+	int getTowerHeight(int);	//return the height of specified Tower
+	int getWeight(int, int);	//return the weight of the selected board space
+	int calcScore(char);	 //calculate the score of a given player on the current board
+	char getPiece(int, int); //returns the piece occupying the given board space
 private:
 	static const int initWeightArray[8][3];	//initial board weights
-	int	weightArray[8][3];	//updated weights on every space for greedy heuristic
 	char boardArray[8][3];	//saves which pieces are on the current board
+	int	weightArray[8][3];	//updated weights on every space for greedy heuristic
 	int towerHeight[8];		//stores how many pieces are in each tower already
 };
 

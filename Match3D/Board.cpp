@@ -13,9 +13,9 @@
 
 /*The initial weights I assign to every position on the board based on percieved value*/
 const int Board::initWeightArray[8][3] = {
-	{ 4, 3, 4 }, { 6, 6, 6 }, { 4, 3, 4 },
-	      { 3, 5, 3 }, { 3, 5, 3 }, 
-	{ 4, 3, 4 }, { 6, 6, 6 }, { 4, 3, 4 } 
+	{ 4, 3, 4 }, { 2, 4, 6 }, { 4, 3, 4 },
+	      { 1, 5, 3 }, { 1, 5, 3 }, 
+	{ 4, 3, 4 }, { 2, 4, 6 }, { 4, 3, 4 } 
 };
 
 /*basic board constructor*/
@@ -53,6 +53,26 @@ bool Board::boardFull() {
 		full = (full && towerFull(i));  //if any tower isn't full, result=false!
 	}
 	return full;
+}
+
+/*sets the weight of the selected board space to the given value*/
+void Board::setWeight(int tower, int height, int value) {
+	weightArray[tower][height] = value;
+}
+
+/*return the weight of the selected board space*/
+int Board::getWeight(int tower, int height) {
+	return weightArray[tower][height];
+}
+
+/*returns the piece occupying the given board space*/
+char Board::getPiece(int tower, int height) {
+	return boardArray[tower][height];
+}
+
+/*return the height of a specified tower*/
+int Board::getTowerHeight(int t) {
+	return towerHeight[t];
 }
 
 /*calculate the score of a given player on the current board*/
