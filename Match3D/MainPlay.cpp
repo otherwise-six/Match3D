@@ -9,6 +9,26 @@
 #include <iostream>
 #include "Board.h"
 
+/*Ask the player a yes or no question*/
+bool yes() {
+	char select = 'Z';
+	/*Players choose either Y or N*/
+	while (select != 'Y' && select != 'N') {
+		while (!(std::cin >> select)){ //make sure a char is received
+			std::cin.clear();
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+		}
+		if (select != 'Y' && select != 'N') {
+			std::cout << "That's not a valid selection! Please choose Y or N.\n";
+		}
+	}
+	if (select == 'Y') {
+		return true;
+	}
+	return false;
+}
+
 char mainMenu(Board board) {
 	char select = 'Z'; //holds player selections temporarily
 	char piece = 'X';  //players selected gaming piece
@@ -29,7 +49,7 @@ char mainMenu(Board board) {
 		}
 	}
 	piece = select;	//set player's piece to their selection
-	if (select = 'X') {
+	if (select == 'X') {
 		xTurn = true;	//player chose X's
 	} else {
 		xTurn = false;	//player chose O's
@@ -39,18 +59,7 @@ char mainMenu(Board board) {
 	std::cout << "Please select yes (Y) or no (N):";
 
 	/*Players can choose to see the full tutorial or jump right into the game*/
-	while (select != 'Y' && select != 'N') {
-		while (!(std::cin >> select)){ //make sure a char is received
-			std::cin.clear();
-			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-			
-		}
-		if (select != 'Y' && select != 'N') {
-			std::cout << "That's not a valid selection! Please choose Y or N.\n";
-		}
-	}
-
-	if (select == 'Y') { //Give the Player a full game explanation
+	if (yes()) { //Give the Player a full game explanation
 		std::cout << "\nWelcome to the in-depth tutorial!\n";
 		std::cout << "Let's look at the game board. There are 8 towers (labelled A to H)\n";
 
@@ -141,57 +150,150 @@ char mainMenu(Board board) {
 	return piece;	//return the selected player piece and start playing!
 }
 
+/*Tally the final scores and declare a winner*/
+void declareWinner(Board b, char player, char com) {
+	int playerScore = b.calcScore(player);
+	int comScore = b.calcScore(com);
+	std::cout << "\nTallying Final Scores...\n";
+	if (playerScore == comScore) {
+		std::cout << "\nIT'S A TIE!!! You put up a really great fight!\n\n";
+	}
+	else if (playerScore > comScore) {
+		std::cout << "\nYOU WIN!!! It looks like I was no match for " << player << "'s this time!\n\n";
+	}
+	else if (playerScore < comScore) {
+		std::cout << "\nYOU LOSE!!! Better luck next time player! Maybe " << com << "'s are lucky for me?\n\n";
+	}
+}
+
 int main() {
 	Board board;		//it's hard to play a game without a board
 	bool xTurn = true;	//this will determine whose turn it is (X always starts)
-	char piece;			//this will be the player's selected playing piece
-	piece = mainMenu(board);	//prompt player for piece choice and explain game (if requested)
+	bool moved;         //will determine if a successful move has occured
+	char playerPiece, comPiece;	    //hold's the player's and computer's selected playing pieces
+	playerPiece = mainMenu(board);	//prompt player for piece choice and explain game (if requested)
 	char select;		//temporarily hold move selections
 	
+	if (playerPiece == 'O') {
+		comPiece = 'X';
+        //COMPUTER MOVES
+		xTurn = !xTurn;
+	} else {
+		comPiece = 'O';
+	}
 	/*Loop forever until the player exits~*/
-	for (;;) {
+	for (;;){
+		while (!board.boardFull()) {
+			moved = false;  //reset the flag (player hasn't moved until valid selection made
+			board.printBoard(playerPiece);
+			std::cout << "\nSelect a tower to place your piece on: ";
 
-		std::cout << "\nSelect a tower to place your piece on: ";
-
-		while (!(std::cin >> select)){ //make sure a char is received
-			std::cin.clear();
-			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-			std::cout << "That's not valid selection! Please try again.\n";
-		}
-		switch (select) {
+			while (!(std::cin >> select)){ //make sure a char is received
+				std::cin.clear();
+				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+				std::cout << "That's not valid selection! Please try again.\n";
+			}
+			switch (select) {
 			case 'A': case 'a': case '1': //place piece in Column A
-				board.makeMove(xTurn, 0);
+				if (!board.towerFull(0)) {  //test for space in tower
+					board.makeMove(xTurn, 0);   //make move
+					moved = true;   //set the player's moved flag to true
+				} else {
+					std::cout << "\nTower A is already full!!!\n";
+				}
 				break;
 			case 'B': case 'b': case '2': //place piece in Column B
-				board.makeMove(xTurn, 1);
+				if (!board.towerFull(1)) {
+					board.makeMove(xTurn, 1);
+					moved = true;
+				} else {
+					std::cout << "\nTower B is already full!!!\n";
+				}
 				break;
 			case 'C': case 'c': case '3': //place piece in Column C
-				board.makeMove(xTurn, 2);
+				if (!board.towerFull(2)) {
+					board.makeMove(xTurn, 2);
+					moved = true;
+				} else {
+					std::cout << "\nTower C is already full!!!\n";
+				}
 				break;
 			case 'D': case 'd': case '4': //place piece in Column D
-				board.makeMove(xTurn, 3);
+				if (!board.towerFull(3)) {
+					board.makeMove(xTurn, 3);
+					moved = true;
+				} else {
+					std::cout << "\nTower D is already full!!!\n";
+				}
 				break;
 			case 'E': case 'e': case '5': //place piece in Column E
-				board.makeMove(xTurn, 4);
+				if (!board.towerFull(4)) {
+					board.makeMove(xTurn, 4);
+					moved = true;
+				} else {
+					std::cout << "\nTower E is already full!!!\n";
+				}
 				break;
 			case 'F': case 'f': case '6': //place piece in Column F
-				board.makeMove(xTurn, 5);
+				if (!board.towerFull(5)) {
+					board.makeMove(xTurn, 5);
+					moved = true;
+				} else {
+					std::cout << "\nTower F is already full!!!\n";
+				}
 				break;
 			case 'G': case 'g': case '7': //place piece in Column G
-				board.makeMove(xTurn, 6);
+				if (!board.towerFull(6)) {
+					board.makeMove(xTurn, 6);
+					moved = true;
+				} else {
+					std::cout << "\nTower G is already full!!!\n";
+				}
 				break;
 			case 'H': case 'h': case '8': //place piece in Column H
-				board.makeMove(xTurn, 7);
+				if (!board.towerFull(7)) {
+					board.makeMove(xTurn, 7);
+					moved = true;
+				} else {
+					std::cout << "\nTower H is already full!!!\n";
+				}
 				break;
 			case 'Q': case 'q':	//Quit (and hopefully don't break the world)
-				std::cout << "\nThank you for playing! The program will now close!\n";
+				std::cout << "\nThank you for playing! The program will now close.\n";
 				system("PAUSE");
 				return 0;
 				break;
 			default: //Optional
 				std::cout << "That's not one of the selections!\n";
+			}
+			if (moved) { //computer makes their move after player has successfully played a piece
+				//COMPUTER MOVES (For now expressed as me changing the turn)
+				xTurn = !xTurn;
+			}
 		}
-		board.printBoard(piece);
+		board.printBoard(playerPiece);
+		declareWinner(board, playerPiece, comPiece);
+		/*Ask for rematch*/
+		std::cout << "Would you like to play another match? (Y or N):";
+		if (yes()) {
+			/*If they're playing again, do they want to keep the same pieces?*/
+			std::cout << "Would you like to swap your pieces for the computers? (Y or N):";
+			if (yes()) {
+				/*Swap the player and computer pieces*/
+				if (playerPiece == 'O') {
+					playerPiece = 'X';
+					comPiece = 'O';
+				} else {
+					playerPiece = 'O';
+                    comPiece = 'X';
+				}
+			}
+			board.clearBoard();
+		} else {  //The player doesn;t want a rematch. Exit.
+			std::cout << "\nThank you for playing! The program will now close.\n";
+			system("PAUSE");
+			return 0;
+		}
 	}
 	board.~Board();
 	system("PAUSE");

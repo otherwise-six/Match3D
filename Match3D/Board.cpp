@@ -41,16 +41,99 @@ void Board::clearBoard() {
 /*returns true if the selected tower is already full*/
 bool Board::towerFull(int tower) {
 	if (towerHeight[tower] >= 3) { //check for full tower
-		std::cout << "This tower is already full!\n";
 		return true;
 	}
 	return false;
 }
 
+/*returns true if the board is full (used to determine game over)*/
+bool Board::boardFull() {
+	bool full = true;   //assume it's full
+    for (int i = 0; i < 8; i++) {
+		full = (full && towerFull(i));  //if any tower isn't full, result=false!
+	}
+	return full;
+}
+
 /*calculate the score of a given player on the current board*/
-int Board::calcScore(char player) {
-	//MATHS
-	return 0;
+int Board::calcScore(char piece) {
+	int score = 0;
+	/*check for full towers (8 max)*/
+	for (int i = 0; i < 8; i++) {
+		if (boardArray[i][0] == piece && boardArray[i][1] == piece && boardArray[i][2] == piece) {
+			score++;
+		}
+	}
+	/*check for rows (18 max)*/
+	for (int j = 0; j < 3; j++) {
+		if (boardArray[0][j] == piece && boardArray[1][j] == piece && boardArray[2][j] == piece) {
+			score++;
+		}
+		if (boardArray[5][j] == piece && boardArray[6][j] == piece && boardArray[7][j] == piece) {
+			score++;
+		}
+		if (boardArray[0][j] == piece && boardArray[3][j] == piece && boardArray[6][j] == piece) {
+			score++;
+		}
+		if (boardArray[1][j] == piece && boardArray[3][j] == piece && boardArray[5][j] == piece) {
+			score++;
+		}
+		if (boardArray[1][j] == piece && boardArray[4][j] == piece && boardArray[7][j] == piece) {
+			score++;
+		}
+		if (boardArray[2][j] == piece && boardArray[4][j] == piece && boardArray[6][j] == piece) {
+			score++;
+		}
+	}
+	/*check for diagonals through D (4 max)*/
+	if (boardArray[3][1] == piece) {
+		if (boardArray[0][0] == piece && boardArray[6][2] == piece) {
+			score++;
+		}
+		if (boardArray[6][0] == piece && boardArray[0][2] == piece) {
+			score++;
+		}
+		if (boardArray[5][0] == piece && boardArray[1][2] == piece) {
+			score++;
+		}
+		if (boardArray[1][0] == piece && boardArray[5][2] == piece) {
+			score++;
+		}
+	}
+	/*check for diagonals through E (4 max)*/
+	if (boardArray[4][1] == piece) {
+		if (boardArray[1][0] == piece && boardArray[7][2] == piece) {
+			score++;
+		}
+		if (boardArray[7][0] == piece && boardArray[1][2] == piece) {
+			score++;
+		}
+		if (boardArray[2][0] == piece && boardArray[6][2] == piece) {
+			score++;
+		}
+		if (boardArray[6][0] == piece && boardArray[2][2] == piece) {
+			score++;
+		}
+	}
+	/*check for diagonals through B (2 max)*/
+	if (boardArray[1][1] == piece) {
+		if (boardArray[0][0] == piece && boardArray[2][2] == piece) {
+			score++;
+		}
+		if (boardArray[2][0] == piece && boardArray[0][2] == piece) {
+			score++;
+		}
+	}
+	/*check for diagonals through G (2 max)*/
+	if (boardArray[6][1] == piece) {
+		if (boardArray[5][0] == piece && boardArray[7][2] == piece) {
+			score++;
+		}
+		if (boardArray[7][0] == piece && boardArray[5][2] == piece) {
+			score++;
+		}
+	}
+	return score;
 }
 
 /*add a piece ignoring gravity(for examples only)*/
