@@ -79,7 +79,7 @@ char mainMenu(Board board) {
 				std::cin.clear();
 				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 			}
-			if (select != 'F' && select != '5'){
+			if (select != 'F' && select != 'f' && select != '5'){
 				std::cout << "Humour me! Just try pressing F or 5.\n";
 			}
 		}
@@ -155,30 +155,32 @@ char mainMenu(Board board) {
 /*evaluate a specified row within the 3D space of the board*/
 void evalRow(Board &b, int row, int x, int y, int z, char testPiece, int value) {
 	if (b.getPiece(x, row) == '\0' && b.getPiece(y, row) == testPiece && b.getPiece(z, row) == testPiece) {
-		b.setWeight(x, row, value);
+		b.addWeight(x, row, value);
 	}
 	else if (b.getPiece(y, row) == '\0' && b.getPiece(x, row) == testPiece && b.getPiece(z, row) == testPiece) {
-		b.setWeight(y, row, value);
+		b.addWeight(y, row, value);
 	}
 	else if (b.getPiece(z, row) == '\0' && b.getPiece(x, row) == testPiece && b.getPiece(y, row) == testPiece) {
-		b.setWeight(z, row, value);
+		b.addWeight(z, row, value);
 	}
 }
 
 /*evaluate a specified row within the 3D space of the board*/
 void evalDiag(Board &b, int x1, int x2, int y1, int y2, char testPiece, int value) {
 	if (b.getPiece(x1, x2) == '\0' && b.getPiece(y1, y2) == testPiece) {
-		b.setWeight(x1, x2, value);
+		b.addWeight(x1, x2, value);
 	}
 	if (b.getPiece(y1, y2) == '\0' && b.getPiece(x1, x2) == testPiece) {
-		b.setWeight(y1, y2, value);
+		b.addWeight(y1, y2, value);
 	}
 }
 
 /*The computer player will determine and make the move it thinks is best*/
-void computerMove(Board &b, char piece, char enemy) {
-	int weight = 20;	//high priority weight for blocking
+int computerMove(Board &b, char piece, char enemy) {
+	int weight = 40;	//high priority weight for blocking
 	char checkPiece = enemy;	//acts as a switch for blocking and seeking points
+	int bestMove = 0;			//the best move for the computer (value to be returned)
+	int bestScore = 0;			//the perceived score of the best move
 
 	/*first check for blockable, then check for points*/
 	for (int n = 0; n < 2; n++) {
@@ -190,7 +192,7 @@ void computerMove(Board &b, char piece, char enemy) {
 		for (int i = 0; i < 8; i++) {
 			/*check for nearly complete columns*/
 			if (b.getPiece(i, 0) == checkPiece && b.getPiece(i, 1) == checkPiece) {
-				b.setWeight(i, 2, weight);
+				b.addWeight(i, 2, weight);
 			}
 		}
 
@@ -231,17 +233,29 @@ void computerMove(Board &b, char piece, char enemy) {
 			evalDiag(b, 7, 0, 5, 2, checkPiece, weight);
 		}
 	}
-	/*
-			int j = b.getTowerHeight(i);
-			if (j = 1) { //we could fill this tower
-				//if (b.)
+
+	/*Now that the weights have been updated for the current board state
+	* run through the possible moves one more time (evaluating for 
+	* ramifications) and store the best move for return.*/
+	for (int z = 0; z < 8; z++) {
+		int height = b.getTowerHeight(z);
+		if (height < 3) { //this is still a valid tower to move to
+		/*if (height < 2) { //the player will be able to move above you
+			int temp = b.getWeight(z, height);
+			//If above pos is valuable, the move is less appealing as player can steal
+			b.setWeight(z, height, temp - (b.getWeight(z, height + 1) / 3));
+		}*/
+			std::cout << "Tower[" << z << ", " << height << "] weight= " << b.getWeight(z, height) << "\n";
+			/*check for the best scoring move*/
+			if (bestScore < b.getWeight(z, height)) {
+				bestScore = b.getWeight(z, height);
+				bestMove = z;
+				std::cout << "bestMove= " << z << "\n";
 			}
-			temp = b.getWeight(i, j);
-			//if (j < 2) { //account for how valuable the space above this move would be
-			//	temp = temp - (b.weightArray[i][j + 1] / 2);
-			//}
-        }
-	}*/
+		}
+	}
+
+	return bestMove;	//DO THE THING!
 }
 
 /*Tally the final scores and declare a winner*/
@@ -267,11 +281,13 @@ int main() {
 	char playerPiece, comPiece;	    //hold's the player's and computer's selected playing pieces
 	playerPiece = mainMenu(board);	//prompt player for piece choice and explain game (if requested)
 	char select;		//temporarily hold move selections
-	
+	int comMove;		//the tower that the computer has decided to place a piece on
+
 	if (playerPiece == 'O') {
 		comPiece = 'X';
-        //COMPUTER MOVES
-		computerMove(board, comPiece, playerPiece);
+        /*computer moves first if player has selected to be O's*/
+		comMove = computerMove(board, comPiece, playerPiece);
+		board.makeMove(xTurn, comMove);
 		xTurn = !xTurn;
 	} else {
 		comPiece = 'O';
@@ -361,8 +377,11 @@ int main() {
 			default: //Optional
 				std::cout << "That's not one of the selections!\n";
 			}
-			if (moved) { //computer makes their move after player has successfully played a piece
-				//COMPUTER MOVES (For now expressed as me changing the turn)
+			if (moved) { //computer waits until player has successfully played a piece
+				/*changes the turn, computer plays, then returns to player turn*/
+				xTurn = !xTurn;
+				comMove = computerMove(board, comPiece, playerPiece);
+				board.makeMove(xTurn, comMove);
 				xTurn = !xTurn;
 			}
 		}

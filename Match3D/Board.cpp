@@ -60,6 +60,11 @@ void Board::setWeight(int tower, int height, int value) {
 	weightArray[tower][height] = value;
 }
 
+/*adds weight to the selected board space*/
+void Board::addWeight(int tower, int height, int value) {
+	weightArray[tower][height] += value;
+}
+
 /*return the weight of the selected board space*/
 int Board::getWeight(int tower, int height) {
 	return weightArray[tower][height];
