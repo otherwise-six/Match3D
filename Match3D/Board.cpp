@@ -6,7 +6,7 @@
 *
 *	Alex vanKooten
 *	St#4789665
-*	Updated Nov.5.2016	*/
+*	Updated Nov.11.2016	*/
 
 #include <iostream>
 #include "Board.h"
@@ -47,6 +47,7 @@ void Board::clearBoard() {
 bool Board::towerFull(int tower) {
 	if (towerHeight[tower] >= 3) { //check for full tower
 		return true;
+		std::cout << "\n\nTower " << towerName[tower] << " is already full!!!\n";
 	}
 	return false;
 }

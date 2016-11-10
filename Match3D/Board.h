@@ -2,10 +2,11 @@
 *	The board has 8 pegs (A through H) each with 3 spaces for players to place pieces.
 *	The 8 pegs are arranged in two rows of 3 with a row of 2 between them.
 *	Players can only place pieces on pegs from the bottom upwards.
+*   All board states and statistics will be defined in this header.
 *
 *	Alex vanKooten
 *	St#4789665
-*	Updated Nov.5.2016	*/
+*	Updated Nov.11.2016	*/
 
 #pragma once
 

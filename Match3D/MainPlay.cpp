@@ -4,11 +4,11 @@
 *
 *	Alex vanKooten
 *	St#4789665
-*	Updated Nov.5.2016	*/
+*	Updated Nov.11.2016	*/
 
 #include <iostream>
-#include <windows.h>
 #include "Board.h"
+#include "MatchMaker.h"
 #undef max
 
 /*Ask the player a yes or no question*/
@@ -35,7 +35,6 @@ char mainMenu(Board board) {
 	char select = 'Z'; //holds player selections temporarily
 	char piece = 'X';  //players selected gaming piece
 	bool xTurn;		//just determines which "player" is "making moves" for tutorial
-
 	std::cout << "Welcome to Match 3D! A virtual game of 3-Dimensional Tic-Tac-Toe! \n";
 	std::cout << "To start, would you like to be X's (First Move) or O's (Second Move)? \n";
 	std::cout << "Please enter a capital X or O here: ";
@@ -152,130 +151,32 @@ char mainMenu(Board board) {
 	return piece;	//return the selected player piece and start playing!
 }
 
-/*evaluate a specified row within the 3D space of the board*/
-void evalRow(Board &b, int row, int x, int y, int z, char testPiece, int value) {
-	if (b.getPiece(x, row) == '\0' && b.getPiece(y, row) == testPiece && b.getPiece(z, row) == testPiece) {
-		b.addWeight(x, row, value);
-	}
-	else if (b.getPiece(y, row) == '\0' && b.getPiece(x, row) == testPiece && b.getPiece(z, row) == testPiece) {
-		b.addWeight(y, row, value);
-	}
-	else if (b.getPiece(z, row) == '\0' && b.getPiece(x, row) == testPiece && b.getPiece(y, row) == testPiece) {
-		b.addWeight(z, row, value);
-	}
-}
-
-/*evaluate a specified row within the 3D space of the board*/
-void evalDiag(Board &b, int x1, int x2, int y1, int y2, char testPiece, int value) {
-	if (b.getPiece(x1, x2) == '\0' && b.getPiece(y1, y2) == testPiece) {
-		b.addWeight(x1, x2, value);
-	}
-	if (b.getPiece(y1, y2) == '\0' && b.getPiece(x1, x2) == testPiece) {
-		b.addWeight(y1, y2, value);
-	}
-}
-
-/*The computer player will determine and make the move it thinks is best*/
-int computerMove(Board &b, char piece, char enemy) {
-	int weight = 40;	//high priority weight for blocking
-	char checkPiece = enemy;	//acts as a switch for blocking and seeking points
-	int bestMove = 0;			//the best move for the computer (value to be returned)
-	int bestScore = 0;			//the perceived score of the best move
-
-	/*first check for blockable, then check for points*/
-	for (int n = 0; n < 2; n++) {
-		if (n = 1) {
-			checkPiece = piece;
-			weight = 10;	//second highest priority for matching
-		}
-		/*go through towers*/
-		for (int i = 0; i < 8; i++) {
-			/*check for nearly complete columns*/
-			if (b.getPiece(i, 0) == checkPiece && b.getPiece(i, 1) == checkPiece) {
-				b.addWeight(i, 2, weight);
-			}
-		}
-
-		/*go through and check for nearly complete rows*/
-		for (int j = 0; j < 3; j++) {
-			evalRow(b, j, 0, 1, 2, checkPiece, weight); //evaluate "back" rows
-			evalRow(b, j, 5, 6, 7, checkPiece, weight); //evaluate "front" rows
-			evalRow(b, j, 0, 3, 6, checkPiece, weight); //evaluate "left \" rows
-			evalRow(b, j, 1, 3, 5, checkPiece, weight); //evaluate "left /" rows
-			evalRow(b, j, 1, 4, 7, checkPiece, weight); //evaluate "right \" rows
-			evalRow(b, j, 2, 4, 6, checkPiece, weight); //evaluate "right /" rows	
-		}
-
-		/*check for nearly complete diagonals through D*/
-		if (b.getPiece(3, 1) == checkPiece) {
-			evalDiag(b, 0, 0, 6, 2, checkPiece, weight);
-			evalDiag(b, 6, 0, 0, 2, checkPiece, weight);
-			evalDiag(b, 5, 0, 1, 2, checkPiece, weight);
-			evalDiag(b, 1, 0, 5, 2, checkPiece, weight);
-		}
-		/*check for nearly complete diagonals through E*/
-		if (b.getPiece(4, 1) == checkPiece) {
-			evalDiag(b, 1, 0, 7, 2, checkPiece, weight);
-			evalDiag(b, 7, 0, 1, 2, checkPiece, weight);
-			evalDiag(b, 2, 0, 6, 2, checkPiece, weight);
-			evalDiag(b, 6, 0, 2, 2, checkPiece, weight);
-		}
-
-		/*check for nearly completediagonals through B*/
-		if (b.getPiece(1, 1) == checkPiece) {
-			evalDiag(b, 0, 0, 2, 2, checkPiece, weight);
-			evalDiag(b, 2, 0, 0, 2, checkPiece, weight);
-		}
-
-		/*check for nearly complete diagonals through G*/
-		if (b.getPiece(6, 1) == checkPiece) {
-			evalDiag(b, 5, 0, 7, 2, checkPiece, weight);
-			evalDiag(b, 7, 0, 5, 2, checkPiece, weight);
-		}
-	}
-
-	/*Now that the weights have been updated for the current board state
-	* run through the possible moves one more time (evaluating for 
-	* ramifications) and store the best move for return.*/
-	for (int z = 0; z < 8; z++) {
-		int height = b.getTowerHeight(z);
-		if (height < 3) { //this is still a valid tower to move to
-		/*if (height < 2) { //the player will be able to move above you
-			int temp = b.getWeight(z, height);
-			//If above pos is valuable, the move is less appealing as player can steal
-			b.setWeight(z, height, temp - (b.getWeight(z, height + 1) / 3));
-		}*/
-			//std::cout << "Tower[" << z << ", " << height << "] weight= " << b.getWeight(z, height) << "\n";
-			/*check for the best scoring move*/
-			if (bestScore < b.getWeight(z, height)) {
-				bestScore = b.getWeight(z, height);
-				bestMove = z;
-				std::cout << "bestMove= " << z << "\n";
-			}
-		}
-	}
-	std::cout << "\nYour Opponent has placed a piece on Tower " << b.getTowerName(bestMove) << "\n";
-	return bestMove;	//DO THE THING!
-}
-
 /*Tally the final scores and declare a winner*/
 void declareWinner(Board &b, char player, char com) {
 	int playerScore = b.calcScore(player);
 	int comScore = b.calcScore(com);
-	std::cout << "\nTallying Final Scores...\n";
+	std::cout << "\n|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n";
+	std::cout << "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n";
+	std::cout << "||                                                                       ||\n";
+	std::cout << "|| Tallying Final Scores...                                              ||\n";
 	if (playerScore == comScore) {
-		std::cout << "\nIT'S A TIE!!! You put up a really great fight!\n\n";
+		std::cout << "|| IT'S A TIE!!! You put up a really great fight!                        ||\n";
 	}
 	else if (playerScore > comScore) {
-		std::cout << "\nYOU WIN!!! It looks like I was no match for " << player << "'s this time!\n\n";
+		std::cout << "|| YOU WIN!!! It looks like I was no match for " << player << "'s this time!            ||\n";
 	}
 	else if (playerScore < comScore) {
-		std::cout << "\nYOU LOSE!!! Better luck next time player! Maybe " << com << "'s are lucky for me?\n\n";
+		std::cout << "|| YOU LOSE!!! Better luck next time player! Maybe " << com << "'s are lucky for me? ||\n";
 	}
+	std::cout << "||                                                                       ||\n";
+	std::cout << "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n";
+	std::cout << "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n\n";
+	system("PAUSE");
 }
 
 int main() {
 	Board board;		//it's hard to play a game without a board
+	MatchMaker greedy;  //this guy will take care of making moves
 	bool xTurn = true;	//this will determine whose turn it is (X always starts)
 	bool moved;         //will determine if a successful move has occured
 	char playerPiece, comPiece;	    //hold's the player's and computer's selected playing pieces
@@ -286,19 +187,15 @@ int main() {
 	if (playerPiece == 'O') { //then computer will make first move
 		comPiece = 'X';
 		/*computer moves first if player has selected to be O's*/
-		comMove = computerMove(board, comPiece, playerPiece);
+		comMove = greedy.computerMove(board, comPiece, playerPiece);
 		board.makeMove(xTurn, comMove);
 		xTurn = !xTurn;
-	}
-	else {
+	} else {
 		comPiece = 'O';
 	}
 
 	/*Loop forever until the player exits~*/
 	for (;;) {
-		for (int x = 0; x < 8; x++) {
-			std::cout << "Tower " << board.getTowerName(x) << " is at: " << board.getTowerHeight(x) << "\n";
-		}
 		while (!board.boardFull()) {
 			moved = false;  //reset the flag (player hasn't moved until valid selection made
 			board.printBoard(playerPiece);
@@ -315,17 +212,11 @@ int main() {
 					board.makeMove(xTurn, 0);
 					moved = true;
 				}
-				else {
-					std::cout << "\nTower F is already full!!!\n";
-				}
 				break;
 			case 'G': case 'g': case '2': //place piece in Column G
 				if (!board.towerFull(1)) {
 					board.makeMove(xTurn, 1);
 					moved = true;
-				}
-				else {
-					std::cout << "\nTower G is already full!!!\n";
 				}
 				break;
 			case 'H': case 'h': case '3': //place piece in Column H
@@ -333,24 +224,17 @@ int main() {
 					board.makeMove(xTurn, 2);
 					moved = true;
 				}
-				else {
-					std::cout << "\nTower H is already full!!!\n";
-				}
 				break;
 			case 'D': case 'd': case '4': //place piece in Column D
 				if (!board.towerFull(3)) {
 					board.makeMove(xTurn, 3);
 					moved = true;
-				} else {
-					std::cout << "\nTower D is already full!!!\n";
 				}
 				break;
 			case 'E': case 'e': case '5': //place piece in Column E
 				if (!board.towerFull(4)) {
 					board.makeMove(xTurn, 4);
 					moved = true;
-				} else {
-					std::cout << "\nTower E is already full!!!\n";
 				}
 				break;
 			case 'A': case 'a': case '6': //place piece in Column A
@@ -358,26 +242,17 @@ int main() {
 					board.makeMove(xTurn, 5);   //make move
 					moved = true;   //set the player's moved flag to true
 				}
-				else {
-					std::cout << "\nTower A is already full!!!\n";
-				}
 				break;
 			case 'B': case 'b': case '7': //place piece in Column B
 				if (!board.towerFull(6)) {
 					board.makeMove(xTurn, 6);
 					moved = true;
 				}
-				else {
-					std::cout << "\nTower B is already full!!!\n";
-				}
 				break;
 			case 'C': case 'c': case '8': //place piece in Column C
 				if (!board.towerFull(7)) {
 					board.makeMove(xTurn, 7);
 					moved = true;
-				}
-				else {
-					std::cout << "\nTower C is already full!!!\n";
 				}
 				break;
 			case 'Q': case 'q':	//Quit (and hopefully don't break the world)
@@ -391,7 +266,7 @@ int main() {
 			if (moved) { //computer waits until player has successfully played a piece
 				/*changes the turn, computer plays, then returns to player turn*/
 				xTurn = !xTurn;
-				comMove = computerMove(board, comPiece, playerPiece);
+				comMove = greedy.computerMove(board, comPiece, playerPiece);
 				board.makeMove(xTurn, comMove);
 				xTurn = !xTurn;
 			}
@@ -399,10 +274,10 @@ int main() {
 		board.printBoard(playerPiece);
 		declareWinner(board, playerPiece, comPiece);
 		/*Ask for rematch*/
-		std::cout << "Would you like to play another match? (Y or N):";
+		std::cout << "Would you like to play another match? (Y or N): ";
 		if (yes()) {
 			/*If they're playing again, do they want to keep the same pieces?*/
-			std::cout << "Would you like to swap your pieces for the computers? (Y or N):";
+			std::cout << "Would you like to swap your pieces for the computers? (Y or N): ";
 			if (yes()) {
 				/*Swap the player and computer pieces*/
 				if (playerPiece == 'O') {
@@ -414,21 +289,20 @@ int main() {
 				}
 			}
 			board.clearBoard();
-			if (playerPiece == 'O') { //then computer will make first move
-				xTurn = true;
-				comPiece = 'X';
-				/*computer moves first if player has selected to be O's*/
-				comMove = computerMove(board, comPiece, playerPiece);
+			xTurn = true;	//X's always go first!
+			if (playerPiece == 'O') { //if player is O's after choices, computer will make first move
+				comMove = greedy.computerMove(board, comPiece, playerPiece);
 				board.makeMove(xTurn, comMove);
 				xTurn = !xTurn;
 			}
-		} else {  //The player doesn;t want a rematch. Exit.
+		} else {  //The player doesn't want a rematch, exit.
 			std::cout << "\nThank you for playing! The program will now close.\n";
 			system("PAUSE");
 			return 0;
 		}
 	}
 	board.~Board();
+	greedy.~MatchMaker();
 	system("PAUSE");
 	return 0;
 }; //Match3D
