@@ -3,7 +3,7 @@
 *	The 8 pegs are arranged in two rows of 3 with a row of 2 between them.
 *	Players can only place pieces on pegs from the bottom upwards.
 *	All board states and statistics will be accessible via this class.
-
+*
 *	Alex vanKooten
 *	St#4789665
 *	Updated Nov.5.2016	*/
@@ -18,6 +18,11 @@ const int Board::initWeightArray[8][3] = {
 	{ 4, 3, 4 }, { 2, 4, 6 }, { 4, 3, 4 } 
 };
 
+/*holds the character name of each tower*/
+const char Board::towerName[8] = {
+	'F', 'G', 'H', 'D', 'E', 'A', 'B', 'C'
+};
+
 /*basic board constructor*/
 Board::Board() {
 	clearBoard();
@@ -30,7 +35,7 @@ Board::~Board() {
 /*reset all board parameters to default*/
 void Board::clearBoard() {
 	for (int i = 0; i < 8; i++) {
-		for (int j = 0; j < 4; j++) {
+		for (int j = 0; j < 3; j++) {
 			weightArray[i][j] = initWeightArray[i][j];	//reset board weights
 			boardArray[i][j] = '\0';	//set board spaces to empty space
 		}
@@ -78,6 +83,11 @@ char Board::getPiece(int tower, int height) {
 /*return the height of a specified tower*/
 int Board::getTowerHeight(int t) {
 	return towerHeight[t];
+}
+
+/*return the character name of a specified tower*/
+char Board::getTowerName(int t) {	
+	return towerName[t];
 }
 
 /*calculate the score of a given player on the current board*/
@@ -196,7 +206,7 @@ void Board::printBoard(char piece) {
 		antiPiece = 'O';
 	}
 
-	std::cout << "\n   A     B     C";
+	std::cout << "\n   F     G     H";
 	std::cout << "\n  [" << boardArray[0][2] << "]   [" << boardArray[1][2] << "]   [" << boardArray[2][2] << "]";
 	std::cout << "\n  [" << boardArray[0][1] << "]   [" << boardArray[1][1] << "]   [" << boardArray[2][1] << "]";
 	std::cout << "\n  [" << boardArray[0][0] << "]   [" << boardArray[1][0] << "]   [" << boardArray[2][0] << "]";
@@ -206,7 +216,7 @@ void Board::printBoard(char piece) {
 	std::cout << "\n     [" << boardArray[3][1] << "]   [" << boardArray[4][1] << "]";
 	std::cout << "\n     [" << boardArray[3][0] << "]   [" << boardArray[4][0] << "]";
 	std::cout << "       Computer (" << antiPiece << ") Score: " << calcScore(antiPiece);
-	std::cout << "\n   F     G     H";
+	std::cout << "\n   A     B     C";
 	std::cout << "\n  [" << boardArray[5][2] << "]   [" << boardArray[6][2] << "]   [" << boardArray[7][2] << "]";
 	std::cout << "\n  [" << boardArray[5][1] << "]   [" << boardArray[6][1] << "]   [" << boardArray[7][1] << "]";
 	std::cout << "\n  [" << boardArray[5][0] << "]   [" << boardArray[6][0] << "]   [" << boardArray[7][0] << "]\n\n";

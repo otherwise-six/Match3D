@@ -1,7 +1,7 @@
 /* 	C++ implementation of a 3D Tic-Tac-Toe game. This class will facilitate all 
 *	player interaction with the game board, display the current game board, 
 *	track current scores, display a victory screen and handle multiple play sessions.
-
+*
 *	Alex vanKooten
 *	St#4789665
 *	Updated Nov.5.2016	*/
@@ -15,17 +15,17 @@
 bool yes() {
 	char select = 'Z';
 	/*Players choose either Y or N*/
-	while (select != 'Y' && select != 'N') {
+	while (select != 'Y' && select != 'N' && select != 'y' && select != 'n') {
 		while (!(std::cin >> select)){ //make sure a char is received
 			std::cin.clear();
 			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
 		}
-		if (select != 'Y' && select != 'N') {
+		if (select != 'Y' && select != 'N' && select != 'y' && select != 'n') {
 			std::cout << "That's not a valid selection! Please choose Y or N.\n";
 		}
 	}
-	if (select == 'Y') {
+	if (select == 'Y' || select == 'y') {
 		return true;
 	}
 	return false;
@@ -38,7 +38,7 @@ char mainMenu(Board board) {
 
 	std::cout << "Welcome to Match 3D! A virtual game of 3-Dimensional Tic-Tac-Toe! \n";
 	std::cout << "To start, would you like to be X's (First Move) or O's (Second Move)? \n";
-	std::cout << "Please enter X or O here: ";
+	std::cout << "Please enter a capital X or O here: ";
 	
 	/*Players must select either X's or O's as their game piece*/
 	while (select != 'O' && select != 'X') {
@@ -70,20 +70,20 @@ char mainMenu(Board board) {
 
 		std::cout << "\nEach turn you'll place your piece (X or O) onto one of the towers (A to H).\n";
 		std::cout << "On your turn, you can place your piece by either pressing the tower letter\n";
-		std::cout << "or the associated tower number. (Ex. A or 1 will place a piece on Tower A)\n";
-		std::cout << "Try placing a piece on tower F for practice (You can press F or 5)\n";
+		std::cout << "or the associated tower number. (Ex. A or 5 will place a piece on Tower A)\n";
+		std::cout << "Try placing a piece on tower F for practice (You can press F or 1)\n";
 
 		/*Making sure players understand how to place a piece*/
-		while (select != 'F' && select != '5') {
+		while (select != 'F' && select != 'f' && select != '1') {
 			while (!(std::cin >> select)){ //make sure a char is received
 				std::cin.clear();
 				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 			}
-			if (select != 'F' && select != 'f' && select != '5'){
-				std::cout << "Humour me! Just try pressing F or 5.\n";
+			if (select != 'F' && select != 'f' && select != '1'){
+				std::cout << "Humour me! Just try pressing F or 1!\n";
 			}
 		}
-		board.makeMove(xTurn, 5);
+		board.makeMove(xTurn, 1);
 		board.printBoard(piece);
 		std::cout << "Good job! Do you see your piece on the board now? \n";
 		system("PAUSE");
@@ -245,7 +245,7 @@ int computerMove(Board &b, char piece, char enemy) {
 			//If above pos is valuable, the move is less appealing as player can steal
 			b.setWeight(z, height, temp - (b.getWeight(z, height + 1) / 3));
 		}*/
-			std::cout << "Tower[" << z << ", " << height << "] weight= " << b.getWeight(z, height) << "\n";
+			//std::cout << "Tower[" << z << ", " << height << "] weight= " << b.getWeight(z, height) << "\n";
 			/*check for the best scoring move*/
 			if (bestScore < b.getWeight(z, height)) {
 				bestScore = b.getWeight(z, height);
@@ -254,7 +254,7 @@ int computerMove(Board &b, char piece, char enemy) {
 			}
 		}
 	}
-
+	std::cout << "\nYour Opponent has placed a piece on Tower " << b.getTowerName(bestMove) << "\n";
 	return bestMove;	//DO THE THING!
 }
 
@@ -283,17 +283,22 @@ int main() {
 	char select;		//temporarily hold move selections
 	int comMove;		//the tower that the computer has decided to place a piece on
 
-	if (playerPiece == 'O') {
+	if (playerPiece == 'O') { //then computer will make first move
 		comPiece = 'X';
-        /*computer moves first if player has selected to be O's*/
+		/*computer moves first if player has selected to be O's*/
 		comMove = computerMove(board, comPiece, playerPiece);
 		board.makeMove(xTurn, comMove);
 		xTurn = !xTurn;
-	} else {
+	}
+	else {
 		comPiece = 'O';
 	}
+
 	/*Loop forever until the player exits~*/
-	for (;;){
+	for (;;) {
+		for (int x = 0; x < 8; x++) {
+			std::cout << "Tower " << board.getTowerName(x) << " is at: " << board.getTowerHeight(x) << "\n";
+		}
 		while (!board.boardFull()) {
 			moved = false;  //reset the flag (player hasn't moved until valid selection made
 			board.printBoard(playerPiece);
@@ -305,28 +310,31 @@ int main() {
 				std::cout << "That's not valid selection! Please try again.\n";
 			}
 			switch (select) {
-			case 'A': case 'a': case '1': //place piece in Column A
-				if (!board.towerFull(0)) {  //test for space in tower
-					board.makeMove(xTurn, 0);   //make move
-					moved = true;   //set the player's moved flag to true
-				} else {
-					std::cout << "\nTower A is already full!!!\n";
+			case 'F': case 'f': case '1': //place piece in Column F
+				if (!board.towerFull(0)) {
+					board.makeMove(xTurn, 0);
+					moved = true;
+				}
+				else {
+					std::cout << "\nTower F is already full!!!\n";
 				}
 				break;
-			case 'B': case 'b': case '2': //place piece in Column B
+			case 'G': case 'g': case '2': //place piece in Column G
 				if (!board.towerFull(1)) {
 					board.makeMove(xTurn, 1);
 					moved = true;
-				} else {
-					std::cout << "\nTower B is already full!!!\n";
+				}
+				else {
+					std::cout << "\nTower G is already full!!!\n";
 				}
 				break;
-			case 'C': case 'c': case '3': //place piece in Column C
+			case 'H': case 'h': case '3': //place piece in Column H
 				if (!board.towerFull(2)) {
 					board.makeMove(xTurn, 2);
 					moved = true;
-				} else {
-					std::cout << "\nTower C is already full!!!\n";
+				}
+				else {
+					std::cout << "\nTower H is already full!!!\n";
 				}
 				break;
 			case 'D': case 'd': case '4': //place piece in Column D
@@ -345,28 +353,31 @@ int main() {
 					std::cout << "\nTower E is already full!!!\n";
 				}
 				break;
-			case 'F': case 'f': case '6': //place piece in Column F
-				if (!board.towerFull(5)) {
-					board.makeMove(xTurn, 5);
-					moved = true;
-				} else {
-					std::cout << "\nTower F is already full!!!\n";
+			case 'A': case 'a': case '6': //place piece in Column A
+				if (!board.towerFull(5)) {  //test for space in tower
+					board.makeMove(xTurn, 5);   //make move
+					moved = true;   //set the player's moved flag to true
+				}
+				else {
+					std::cout << "\nTower A is already full!!!\n";
 				}
 				break;
-			case 'G': case 'g': case '7': //place piece in Column G
+			case 'B': case 'b': case '7': //place piece in Column B
 				if (!board.towerFull(6)) {
 					board.makeMove(xTurn, 6);
 					moved = true;
-				} else {
-					std::cout << "\nTower G is already full!!!\n";
+				}
+				else {
+					std::cout << "\nTower B is already full!!!\n";
 				}
 				break;
-			case 'H': case 'h': case '8': //place piece in Column H
+			case 'C': case 'c': case '8': //place piece in Column C
 				if (!board.towerFull(7)) {
 					board.makeMove(xTurn, 7);
 					moved = true;
-				} else {
-					std::cout << "\nTower H is already full!!!\n";
+				}
+				else {
+					std::cout << "\nTower C is already full!!!\n";
 				}
 				break;
 			case 'Q': case 'q':	//Quit (and hopefully don't break the world)
@@ -403,6 +414,14 @@ int main() {
 				}
 			}
 			board.clearBoard();
+			if (playerPiece == 'O') { //then computer will make first move
+				xTurn = true;
+				comPiece = 'X';
+				/*computer moves first if player has selected to be O's*/
+				comMove = computerMove(board, comPiece, playerPiece);
+				board.makeMove(xTurn, comMove);
+				xTurn = !xTurn;
+			}
 		} else {  //The player doesn;t want a rematch. Exit.
 			std::cout << "\nThank you for playing! The program will now close.\n";
 			system("PAUSE");
@@ -412,4 +431,4 @@ int main() {
 	board.~Board();
 	system("PAUSE");
 	return 0;
-}
+}; //Match3D
